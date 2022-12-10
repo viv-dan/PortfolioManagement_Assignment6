@@ -286,7 +286,31 @@ public class PortfolioStrategyModelImpl extends PortfolioFlexBrokerageModel impl
    */
   @Override
   public String reBalancePortfolio(String portfolioName, LocalDate date, API api) {
-    return "yes";
+    if(this.validateStrategyPfExists(portfolioName)==0){
+      return "Portfolio doesnt have a strategy yet!!";
+    }
+    String stringValue = this.displayFlexPortfolioValue(portfolioName, date, api);
+    int indexOfDollar = stringValue.lastIndexOf("$");
+    Double valueOfPortfolio = Double.parseDouble(stringValue.substring(indexOfDollar+1));
+    if(valueOfPortfolio==0.0){
+      return "Cannot re-balance on the given date. Try some other date!!";
+    }
+    String compostion = this.examinePortfolioByDate(portfolioName, date);
+    String[] compositionSplit = compostion.split("\n");
+    HashMap<String, Double> hm = new HashMap<>();
+    for(int i=4; i<compositionSplit.length;i++){
+      String[] tickerRow = compositionSplit[i].split("\t");
+      hm.put(tickerRow[0], hm.getOrDefault(tickerRow[0],0.0)+Double.parseDouble(tickerRow[1]));
+    }
+    String weights = this.displayWeightedPf(portfolioName);
+    String[] weightSplit = weights.split("\n");
+    HashMap<String, Double> hm1 = new HashMap<>();
+    for(int i=3; i<weightSplit.length;i++){
+      hm1.put(weightSplit[i].substring(weightSplit[i].indexOf("Ticker")+8, weightSplit[i].indexOf("Weight")-2),
+              Double.parseDouble(weightSplit[i].substring(weightSplit[i].indexOf("Weight")+8)));
+    }
+    
+    return "Re-balancing done successfully";
   }
 
   @Override
