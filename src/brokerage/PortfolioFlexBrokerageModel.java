@@ -35,14 +35,15 @@ public class PortfolioFlexBrokerageModel extends PortfolioBrokerageModel impleme
   private PortfolioGUIVew view;
 
   @Override
-  public int createListOfStockForFlex(String ticker, int quantity, LocalDate purchaseDate,
+  public int createListOfStockForFlex(String ticker, double quantity, LocalDate purchaseDate,
       double purchaseCom, API api) {
     String stringDate = purchaseDate.toString();
     LocalDate date = parseDate(stringDate);
-
+    System.out.println("coming here");
     Stock stock = new Stock();
     stock.setTicker(ticker);
-    stock.setQuantity(quantity);
+    float d  = (float)quantity;
+    stock.setQuantity(d);
 
     double purchasePrice = api.stockCurrentValueFromAPI(ticker, purchaseDate);
     while (purchasePrice == 0) {
@@ -97,10 +98,10 @@ public class PortfolioFlexBrokerageModel extends PortfolioBrokerageModel impleme
   }
 
   @Override
-  public String sellStockFromFlexPF(String portfolioName, String ticker, int quantity,
+  public String sellStockFromFlexPF(String portfolioName, String ticker, double quantity,
       LocalDate sellDate, API api) {
-    Map<String, Integer> updateData = new HashMap<>();
-    int qtyToSell = quantity;
+    Map<String, Double> updateData = new HashMap<>();
+    double qtyToSell = quantity;
     String result = "";
     String line = "";
     String splitBy = ",";
@@ -116,7 +117,7 @@ public class PortfolioFlexBrokerageModel extends PortfolioBrokerageModel impleme
               .isBefore(sellDate)) {
             if (data[1].equals(ticker)) {
               if (qtyToSell == (int) Float.parseFloat(data[2])) {
-                updateData.put(data[6], 0);
+                updateData.put(data[6], 0.0);
                 // write into sell history file
                 writeSellHistory(data[0], data[1], data[2], data[3], data[4], data[5], data[6],
                     sellDate, api);
@@ -127,14 +128,14 @@ public class PortfolioFlexBrokerageModel extends PortfolioBrokerageModel impleme
                 qtyToSell = qtyToSell - (int) Float.parseFloat(data[2]);
 
                 //make the quantity in FlexiblePortfolioCurrentComposition.csv
-                updateData.put(data[6], 0);
+                updateData.put(data[6], 0.0);
 
                 // write into sell history file
                 writeSellHistory(data[0], data[1], data[2], data[3], data[4], data[5], data[6],
                     sellDate, api);
 
               } else if (qtyToSell < (int) Float.parseFloat(data[2])) {
-                int newStockQty = (int) Float.parseFloat(data[2]) - qtyToSell;
+                double newStockQty = (int) Float.parseFloat(data[2]) - qtyToSell;
 
                 //update the new quantity in FlexiblePortfolioCurrentComposition.csv
                 updateData.put(data[6], newStockQty);
@@ -572,7 +573,7 @@ public class PortfolioFlexBrokerageModel extends PortfolioBrokerageModel impleme
    *                   updated after a sell is made.
    */
 
-  protected void updateCurrentComposition(Map<String, Integer> updateData) {
+  protected void updateCurrentComposition(Map<String, Double> updateData) {
     int counter = 0;
     int i = 1;
     String result = "";
@@ -611,7 +612,7 @@ public class PortfolioFlexBrokerageModel extends PortfolioBrokerageModel impleme
         writeStream[i][4] = "'" + date;
         writeStream[i][5] = data[5];
         writeStream[i][6] = data[6];
-        for (Map.Entry<String, Integer> entry : updateData.entrySet()) {
+        for (Map.Entry<String, Double> entry : updateData.entrySet()) {
           String key = entry.getKey();
           if (key.equals(data[6])) {
             writeStream[i][2] = "" + entry.getValue();

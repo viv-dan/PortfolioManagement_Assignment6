@@ -83,7 +83,7 @@ public interface PortfolioStrategyModel extends PortfolioFlexModel {
    * @param date the date on which the portfolio has to be re-balanced
    * @return returns a successful message or a failure message according to the input data.
    */
-  String reBalancePortfolio(String portfolioName, LocalDate date, API api);
+  String reBalancePortfolio(String portfolioName, LocalDate date, Map<String, Double> weights, API api);
 
 }
 

@@ -20,7 +20,7 @@ public interface PortfolioFlexModel extends PortfolioModel {
    * @param api          API call object to obtain the price of the stock at a particular date.
    * @return an integer 1 or 0 that indicates whether the portfolio was created or not
    */
-  int createListOfStockForFlex(String ticker, int quantity, LocalDate purchaseDate,
+  int createListOfStockForFlex(String ticker, double quantity, LocalDate purchaseDate,
       double purchaseCom, API api);
 
   /**
@@ -33,7 +33,7 @@ public interface PortfolioFlexModel extends PortfolioModel {
    * @param sellDate      date when the sell occurred.
    * @return returns the status indicating whether the sell was successfully made or not.
    */
-  String sellStockFromFlexPF(String portfolioName, String ticker, int quantity,
+  String sellStockFromFlexPF(String portfolioName, String ticker, double quantity,
       LocalDate sellDate, API api);
 
   /**

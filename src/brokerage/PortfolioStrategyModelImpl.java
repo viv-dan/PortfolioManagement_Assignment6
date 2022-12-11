@@ -285,7 +285,7 @@ public class PortfolioStrategyModelImpl extends PortfolioFlexBrokerageModel impl
    * @return returns a successful message or a failure message according to the input data.
    */
   @Override
-  public String reBalancePortfolio(String portfolioName, LocalDate date, API api) {
+  public String reBalancePortfolio(String portfolioName, LocalDate date, Map<String, Double> weights, API api) {
     if(this.validateStrategyPfExists(portfolioName)==0){
       return "Portfolio doesnt have a strategy yet!!";
     }
@@ -302,14 +302,26 @@ public class PortfolioStrategyModelImpl extends PortfolioFlexBrokerageModel impl
       String[] tickerRow = compositionSplit[i].split("\t");
       hm.put(tickerRow[0], hm.getOrDefault(tickerRow[0],0.0)+Double.parseDouble(tickerRow[1]));
     }
-    String weights = this.displayWeightedPf(portfolioName);
-    String[] weightSplit = weights.split("\n");
-    HashMap<String, Double> hm1 = new HashMap<>();
-    for(int i=3; i<weightSplit.length;i++){
-      hm1.put(weightSplit[i].substring(weightSplit[i].indexOf("Ticker")+8, weightSplit[i].indexOf("Weight")-2),
-              Double.parseDouble(weightSplit[i].substring(weightSplit[i].indexOf("Weight")+8)));
+    for(String stock : hm.keySet()){
+      Double price = api.stockCurrentValueFromAPI(stock, date);
+      Double stockRebalanceQuantity = (weights.get(stock)*(valueOfPortfolio)*(0.01))/price;
+      Double actualStockQuantity = hm.get(stock);
+      if(actualStockQuantity>stockRebalanceQuantity){
+        String s = this.sellStockFromFlexPF(portfolioName,stock, actualStockQuantity-stockRebalanceQuantity,date,api);
+        if(!s.contains("Stock successfully sold")){
+          return "Cannot re-balance portfolio";
+        }
+      }else{
+        int j = this.createListOfStockForFlex(stock, stockRebalanceQuantity-actualStockQuantity, date, 0, api);
+        if(j!=1){
+          return "Cannot re-balance portfolio";
+        }
+        String s  = this.createPortfolio(portfolioName);
+        if(!s.contains("Flexible Portfolio successfully created")){
+          return "Cannot re-balance portfolio";
+        }
+      }
     }
-    
     return "Re-balancing done successfully";
   }
 
