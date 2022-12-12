@@ -57,7 +57,7 @@ public class PortfolioBrokerageController implements PortfolioController {
         portfolioView.inputChoice();
         while (!scan.hasNextInt()) {
           portfolioView.output(
-              "Only integer is allowed. Please provide an integer between 1 and 13!");
+              "Only integer is allowed. Please provide an integer between 1 and 19!");
           scan.next();
         }
         menuChoice = scan.nextInt();
@@ -173,7 +173,7 @@ public class PortfolioBrokerageController implements PortfolioController {
           command = new DisplayDollarCostAverageHelper();
           command.goCommand(portfolioModel, portfolioView, scan);
           break;
-
+        // re-balance a portfolio with weights.
         case 19:
           command = new rebalancePortfolio();
           command.goCommand(portfolioModel, portfolioView, scan);

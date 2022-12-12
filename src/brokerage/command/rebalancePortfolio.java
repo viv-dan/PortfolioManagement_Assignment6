@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 import brokerage.API;
@@ -28,13 +30,17 @@ public class rebalancePortfolio implements CommandController {
     LocalDate date = null;
     view.inputPortfolioName();
     portfolioName = scan.next();
-    while (model.validateFlexPortfolioExist(portfolioName) == 0
-            && model.validateStrategyPfExists(portfolioName) == 0) {
+    while (model.validateFlexPortfolioExist(portfolioName) == 0) {
       view.output("This portfolio doesn't exist. Provide a different name");
       portfolioName = scan.next();
     }
     // getting date info
     boolean isValid;
+    int stockCount;
+    Map<String,Double> stockWeightMap = new HashMap<>();
+    double weight;
+    String ticker;
+    double weightDiff=0;
     do {
       try {
         view.inputDateToValidate();
@@ -48,7 +54,52 @@ public class rebalancePortfolio implements CommandController {
     }
     while (!isValid);
     API api = new APIImpl();
-    view.output(model.reBalancePortfolio(portfolioName, date, api));
+    do {
+      view.inputNoOfStocksToAdd();
+      while (!scan.hasNextInt()) {
+        String input = scan.next();
+        view.output(input + " is not a valid number.");
+      }
+      stockCount = scan.nextInt();
+    }
+    while (stockCount <= 0);
+
+    // get ticker
+    view.output(model.displayListOfStocks());
+    for (int i = 0; i < stockCount; i++) {
+      view.inputTicker();
+      ticker = scan.next();
+      while (model.validateTickerExist(ticker) == 1) {
+        view.output("Ticker doesn't exist. Provide a different name.");
+        ticker = scan.next();
+      }
+      // get weight
+      if (stockCount == 1) {
+        view.output("Weight assigned = 100 because stock count is 1");
+        weight = 100;
+        stockWeightMap.put(ticker, weight);
+      }
+      if (stockCount > 1) {
+        do {
+          view.inputWeight();
+          view.output("Remaining weight: " + (100 - weightDiff));
+          while (!scan.hasNextFloat()) {
+            String input = scan.next();
+            view.output(input + " is not a valid number.");
+          }
+          weight = scan.nextFloat();
+          weightDiff = weightDiff + weight;
+        }
+        while (weight <= 0 || weight >= 100);
+        stockWeightMap.put(ticker, weight);
+      }
+    }
+    try{
+      view.output(model.reBalancePortfolio(portfolioName, date, stockWeightMap,api));
+    }catch (Exception e){
+      view.output(e.getMessage());
+    }
+
   }
 
   /**

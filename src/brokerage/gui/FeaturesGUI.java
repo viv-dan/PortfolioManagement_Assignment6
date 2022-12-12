@@ -191,5 +191,7 @@ public interface FeaturesGUI {
    * @param portfolioName the name of the portfolio to be re-balanced
    * @param date the date on which the re-balancing has to be done
    */
-  void startRebalancing(String portfolioName, String date);
+  void startRebalancing(String portfolioName, String date,String ticker,String weight);
+
+  void addStockToRebalance(String portfolioName, String ticker, String weight, String date);
 }

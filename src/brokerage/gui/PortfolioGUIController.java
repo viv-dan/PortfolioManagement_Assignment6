@@ -471,7 +471,7 @@ public class PortfolioGUIController implements FeaturesGUI, PortfolioController 
    * @param date          the date on which the re-balancing has to be done
    */
   @Override
-  public void startRebalancing(String portfolioName, String date) {
+  public void startRebalancing(String portfolioName, String date,String ticker,String weight) {
     if (!validateFieldIsEmpty(portfolioName)) {
       return;
     }
@@ -484,12 +484,50 @@ public class PortfolioGUIController implements FeaturesGUI, PortfolioController 
     }
     try {
       LocalDate queryDate = parseDate(date);
-      view.outputForFeatures(model.reBalancePortfolio(portfolioName, queryDate, api));
+      //view.outputForFeatures(model.reBalancePortfolio(portfolioName, queryDate, api));
       view.addFeaturesOutputFrame(this);
     } catch (DateTimeException exception) {
       JOptionPane.showConfirmDialog(null, "Please enter a valid date "
               + "pattern in YYYY-MM-DD", "PortfolioBrokerage", JOptionPane.CANCEL_OPTION);
     }
+  }
+
+  @Override
+  public void addStockToRebalance(String portfolioName, String ticker, String weight, String date) {
+    if(portfolioName.isBlank() || ticker.isBlank() || weight.isBlank() || date.isBlank()){
+      return;
+    }
+    if (model.validateTickerExist(ticker) == 1) {
+      JOptionPane.showConfirmDialog(null, ticker
+                      + " ticker is not a valid ticker. Please input again!",
+              "PortfolioBrokerage", JOptionPane.CANCEL_OPTION);
+      return;
+    }
+    try {
+      LocalDate eDate = null;
+      if (validateFloat(weight) == 1) {
+        return;
+      }
+      float stockWeight = Float.parseFloat(weight);
+      float totalWeight = 0;
+      for (Map.Entry<String, Float> entry : stockWeightMap.entrySet()) {
+        float x = entry.getValue();
+        totalWeight = totalWeight + x;
+      }
+      if (totalWeight + stockWeight > 100) {
+        JOptionPane.showMessageDialog(new JFrame(), "Total weight already reached 100"
+                + ". Cannot add more stocks!!!");
+        view.setWeightedPFAddStockButtonNotClickable();
+        return;
+      }
+      stockWeightMap.put(ticker, stockWeight);
+      LocalDate sDate = parseDate(date);
+
+    } catch (DateTimeException exception) {
+      JOptionPane.showConfirmDialog(null, "Please enter a valid date "
+              + "pattern in YYYY-MM-DD", "PortfolioBrokerage", JOptionPane.CANCEL_OPTION);
+    }
+
   }
 
   /**

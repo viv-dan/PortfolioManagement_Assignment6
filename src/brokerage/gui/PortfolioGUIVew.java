@@ -548,22 +548,38 @@ public class PortfolioGUIVew extends JFrame implements PortfolioBrokerageGUIView
     this.getContentPane().removeAll();
     JPanel panel = new JPanel();
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    panel.setLayout(new GridLayout(5, 0));
+    panel.setLayout(new GridLayout(6, 0));
 
     // get portfolioname
     JLabel lbName = new JLabel("Enter the portfolio name: ");
     panel.add(lbName);
-    pn1 = new JTextField(10);
+    pn1 = new JTextField(6);
     panel.add(pn1);
+
+
     //get date label and text
     JLabel lbDate = new JLabel("Enter the Date: ");
     panel.add(lbDate);
-    date = new JTextField(10);
+    date = new JTextField(6);
     panel.add(date);
-    //get cost basis button
+    //weight and ticker button
+    JLabel ticker = new JLabel("Enter Ticker: ");
+    panel.add(ticker);
+    getTicker = new JTextField(6);
+    panel.add(getTicker);
+    JLabel weight = new JLabel("Enter Weight: ");
+    panel.add(weight);
+    getWeight = new JTextField(6);
+    panel.add(getWeight);
+    //Add stocks
+    addStockForWeightedPF = new JButton("Add another Stock");
+    addStockForWeightedPF.setActionCommand("add stock button");
+    panel.add(addStockForWeightedPF);
+    //re-balance portfolio
     rebalancePortfolio = new JButton("Rebalance Portfolio");
     rebalancePortfolio.setActionCommand("rebalancePortfolio");
     panel.add(rebalancePortfolio);
+    //
     backToMenu = new JButton("Main Menu");
     backToMenu.setActionCommand("Main Menu");
     panel.add(backToMenu);
@@ -574,6 +590,16 @@ public class PortfolioGUIVew extends JFrame implements PortfolioBrokerageGUIView
     pack();
     setResizable(true);
     setVisible(true);
+  }
+
+  @Override
+  public void addFeaturesRebalance(FeaturesGUI feature) {
+    exit.addActionListener(e -> feature.exitFromProgram());
+    backToMenu.addActionListener(e -> feature.backToMenu());
+    addStockForWeightedPF.addActionListener(e -> feature.addStockToRebalance(pn1.getText(),
+            getTicker.getText(),getWeight.getText(),date.getText()));
+    rebalancePortfolio.addActionListener(e -> feature.startRebalancing(pn1.getText(), date.getText(),
+            getTicker.getText(),getWeight.getText()));
   }
 
   @Override
@@ -591,13 +617,8 @@ public class PortfolioGUIVew extends JFrame implements PortfolioBrokerageGUIView
             getFrequency.getText(), getAmount.getText(), getPurchaseCommission.getText()));
   }
 
-  @Override
-  public void addFeaturesRebalance(FeaturesGUI feature) {
-    exit.addActionListener(e -> feature.exitFromProgram());
-    backToMenu.addActionListener(e -> feature.backToMenu());
 
-    rebalancePortfolio.addActionListener(e -> feature.startRebalancing(pn1.getText(), date.getText()));
-  }
+
 
   @Override
   public void addFeaturesCreateWeightedPortfolio(FeaturesGUI feature) {
