@@ -94,10 +94,13 @@ public class rebalancePortfolio implements CommandController {
         stockWeightMap.put(ticker, weight);
       }
     }
+    for (String s:stockWeightMap.keySet()) {
+      System.out.println("Tick"+s+" "+stockWeightMap.get(s));
+    }
     try{
       view.output(model.reBalancePortfolio(portfolioName, date, stockWeightMap,api));
     }catch (Exception e){
-      view.output(e.getMessage());
+      e.printStackTrace();
     }
 
   }
