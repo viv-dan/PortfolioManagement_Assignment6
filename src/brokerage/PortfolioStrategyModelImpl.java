@@ -313,6 +313,7 @@ public class PortfolioStrategyModelImpl extends PortfolioFlexBrokerageModel impl
       if(actualStockQuantity>stockRebalanceQuantity){
         String s = this.sellStockFromFlexPF(portfolioName,stock, actualStockQuantity-stockRebalanceQuantity,date,api);
         if(!s.contains("Stock successfully sold")){
+          System.out.println(stock+" "+actualStockQuantity+" "+stockRebalanceQuantity);
           return "Cannot re-balance portfolio";
         }
       }else{
