@@ -286,8 +286,12 @@ public class PortfolioStrategyModelImpl extends PortfolioFlexBrokerageModel impl
    */
   @Override
   public String reBalancePortfolio(String portfolioName, LocalDate date, Map<String, Double> weights, API api) {
-    if(this.validateStrategyPfExists(portfolioName)==0){
-      return "Portfolio doesnt have a strategy yet!!";
+    double totalWeight = 0.0;
+    for(String stock : weights.keySet()){
+      totalWeight += weights.get(stock);
+    }
+    if(totalWeight > 100 || totalWeight < 100){
+      return "The Total % of weights were not equal to 100%. Please provide proper weightage.";
     }
     String stringValue = this.displayFlexPortfolioValue(portfolioName, date, api);
     int indexOfDollar = stringValue.lastIndexOf("$");

@@ -265,4 +265,11 @@ public class PortfolioStrategyModelImplTest {
     }
   }
 
+  @Test
+  public void testRebalancing(){
+    PortfolioStrategyModel pm = new PortfolioStrategyModelImpl();
+    API api = new APIImpl();
+
+  }
+
 }

@@ -39,7 +39,6 @@ public class PortfolioFlexBrokerageModel extends PortfolioBrokerageModel impleme
       double purchaseCom, API api) {
     String stringDate = purchaseDate.toString();
     LocalDate date = parseDate(stringDate);
-    System.out.println("coming here");
     Stock stock = new Stock();
     stock.setTicker(ticker);
     float d  = (float)quantity;
@@ -861,7 +860,14 @@ public class PortfolioFlexBrokerageModel extends PortfolioBrokerageModel impleme
             double purchasePrice = api.stockCurrentValueFromAPI(data[1], tempDate);
             while (purchasePrice == 0) {
               tempDate = tempDate.plusDays(1);
-              purchasePrice = api.stockCurrentValueFromAPI(data[1], tempDate);
+              if(tempDate.isBefore(getTodayDate()) && tempDate.isBefore(endDate)){
+                purchasePrice = api.stockCurrentValueFromAPI(data[1], tempDate);
+              }else{
+                break;
+              }
+            }
+            if(purchasePrice==0){
+              break;
             }
             float amount = Float.parseFloat(data[6]);
             float weight = Float.parseFloat(data[2]);
@@ -902,7 +908,14 @@ public class PortfolioFlexBrokerageModel extends PortfolioBrokerageModel impleme
             double purchasePrice = api.stockCurrentValueFromAPI(data[1], tempDate);
             while (purchasePrice == 0) {
               tempDate = tempDate.plusDays(1);
-              purchasePrice = api.stockCurrentValueFromAPI(data[1], tempDate);
+              if(tempDate.isBefore(getTodayDate()) && tempDate.isBefore(endDate)){
+                purchasePrice = api.stockCurrentValueFromAPI(data[1], tempDate);
+              }else{
+                break;
+              }
+            }
+            if(purchasePrice==0){
+              break;
             }
             int amount = Integer.parseInt(data[6]);
             int weight = Integer.parseInt(data[2]);
