@@ -154,10 +154,21 @@ public interface PortfolioBrokerageGUIView extends PortfolioView {
    */
   void clearTextInTheDCA();
 
+  /**
+   * The method will display fields which are required to rebalance a portfolio.
+   */
   void rebalanceFeatureImpl();
 
+  /**
+   * the method is used to add the rebalance features in the view.
+   *
+   * @param feature the feature object which will act as event listener.
+   */
   void addFeaturesRebalance(FeaturesGUI feature);
 
+  /**
+   * The method clears the text field in the rebalancing of portfolio panel.
+   */
   void clearTextInReBalance();
 
 }

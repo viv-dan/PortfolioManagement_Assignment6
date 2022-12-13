@@ -14,6 +14,9 @@ import brokerage.CommandController;
 import brokerage.PortfolioStrategyModel;
 import brokerage.PortfolioView;
 
+/**
+ * The class represents a command for rebalancing a portfolio.
+ */
 public class rebalancePortfolio implements CommandController {
   /**
    * it defines the command that needs to be executed depending upon the input provided by the

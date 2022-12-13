@@ -186,12 +186,23 @@ public interface FeaturesGUI {
   void createRebalanceFeature();
 
   /**
-   * This method re-balances the portfolio on a specific date.
+   * The method is used to add the last stock in view and start the rebalancing of a portfolio.
    *
-   * @param portfolioName the name of the portfolio to be re-balanced
-   * @param date the date on which the re-balancing has to be done
+   * @param portfolioName the name of the portfolio
+   * @param date date on which rebalancing need to be done
+   * @param ticker the last ticker to be added
+   * @param weight the weight of that ticker
    */
   void startRebalancing(String portfolioName, String date,String ticker,String weight);
 
+  /**
+   * The method is used to add stocks of the portfolio and their weights for rebalacing
+   * a portfolio.
+   *
+   * @param portfolioName the name of the portfolio
+   * @param ticker stock ticker to be added
+   * @param weight weight of the ticker
+   * @param date the date of rebalancing
+   */
   void addStockToRebalance(String portfolioName, String ticker, String weight, String date);
 }
