@@ -158,4 +158,6 @@ public interface PortfolioBrokerageGUIView extends PortfolioView {
 
   void addFeaturesRebalance(FeaturesGUI feature);
 
+  void clearTextInReBalance();
+
 }

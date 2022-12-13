@@ -308,15 +308,18 @@ public class PortfolioStrategyModelImpl extends PortfolioFlexBrokerageModel impl
     }
     for(String stock : hm.keySet()){
       Double price = api.stockCurrentValueFromAPI(stock, date);
+      if(price==0){
+        return "Cannot re-balance portfolio on holiday";
+      }
       Double stockRebalanceQuantity = (weights.get(stock)*(valueOfPortfolio)*(0.01))/price;
       Double actualStockQuantity = hm.get(stock);
       if(actualStockQuantity>stockRebalanceQuantity){
         String s = this.sellStockFromFlexPF(portfolioName,stock, actualStockQuantity-stockRebalanceQuantity,date,api);
         if(!s.contains("Stock successfully sold")){
-          System.out.println(stock+" "+actualStockQuantity+" "+stockRebalanceQuantity);
           return "Cannot re-balance portfolio";
         }
       }else{
+        System.out.println(stock+" "+stockRebalanceQuantity+" "+actualStockQuantity);
         int j = this.createListOfStockForFlex(stock, stockRebalanceQuantity-actualStockQuantity, date, 0, api);
         if(j!=1){
           return "Cannot re-balance portfolio";

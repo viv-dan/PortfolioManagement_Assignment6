@@ -24,6 +24,7 @@ public class PortfolioGUIController implements FeaturesGUI, PortfolioController 
 
   API api = new APIImpl();
   Map<String, Float> stockWeightMap = new HashMap<>();
+  Map<String, Double> stockMap = new HashMap<>();
 
   @Override
   public void goController(PortfolioStrategyModel portfolioModel, PortfolioView portfolioView) {
@@ -475,16 +476,32 @@ public class PortfolioGUIController implements FeaturesGUI, PortfolioController 
     if (!validateFieldIsEmpty(portfolioName)) {
       return;
     }
-    if (model.validateFlexPortfolioExist(portfolioName) == 0
-            && model.validateStrategyPfExists(portfolioName) == 0) {
+    if (model.validateFlexPortfolioExist(portfolioName) == 0) {
       JOptionPane.showConfirmDialog(null, portfolioName
                       + " portfolio doesn't exist. Enter a valid portfolio name.",
               "PortfolioBrokerage", JOptionPane.CANCEL_OPTION);
       return;
     }
     try {
+      if (validateFloat(weight) == 1) {
+        return;
+      }
+      float stockWeight = Float.parseFloat(weight);
+      double totalWeight = 0;
+      for (Map.Entry<String, Double> entry : stockMap.entrySet()) {
+        Double x = entry.getValue();
+        totalWeight = totalWeight + x;
+      }
+      if (totalWeight + stockWeight > 100) {
+        JOptionPane.showMessageDialog(new JFrame(), "Total weight already reached 100"
+                + ". Cannot add more stocks!!!");
+        view.setWeightedPFAddStockButtonNotClickable();
+        return;
+      }
+      stockMap.put(ticker, Double.valueOf(stockWeight));
       LocalDate queryDate = parseDate(date);
-      //view.outputForFeatures(model.reBalancePortfolio(portfolioName, queryDate, api));
+      view.outputForFeatures(model.reBalancePortfolio(portfolioName, queryDate,stockMap, api));
+      stockMap.clear();
       view.addFeaturesOutputFrame(this);
     } catch (DateTimeException exception) {
       JOptionPane.showConfirmDialog(null, "Please enter a valid date "
@@ -509,9 +526,9 @@ public class PortfolioGUIController implements FeaturesGUI, PortfolioController 
         return;
       }
       float stockWeight = Float.parseFloat(weight);
-      float totalWeight = 0;
-      for (Map.Entry<String, Float> entry : stockWeightMap.entrySet()) {
-        float x = entry.getValue();
+      double totalWeight = 0;
+      for (Map.Entry<String, Double> entry : stockMap.entrySet()) {
+        Double x = entry.getValue();
         totalWeight = totalWeight + x;
       }
       if (totalWeight + stockWeight > 100) {
@@ -520,9 +537,10 @@ public class PortfolioGUIController implements FeaturesGUI, PortfolioController 
         view.setWeightedPFAddStockButtonNotClickable();
         return;
       }
-      stockWeightMap.put(ticker, stockWeight);
+      stockMap.put(ticker, Double.valueOf(stockWeight));
       LocalDate sDate = parseDate(date);
-
+      view.clearTextInReBalance();
+      view.addFeaturesOutputFrame(this);
     } catch (DateTimeException exception) {
       JOptionPane.showConfirmDialog(null, "Please enter a valid date "
               + "pattern in YYYY-MM-DD", "PortfolioBrokerage", JOptionPane.CANCEL_OPTION);

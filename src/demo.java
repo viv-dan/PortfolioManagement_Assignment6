@@ -11,11 +11,11 @@ public class demo {
   public static void main(String[] args) {
     PortfolioStrategyModel pm = new PortfolioStrategyModelImpl();
     API api = new APIImpl();
-    //System.out.println(api.stockCurrentValueFromAPI("GOOG", parseDate("2022-12-03")));
-    //System.out.println(pm.displayFlexPortfolioValue("FANG", parseDate("2022-11-27"), api));
+    System.out.println(api.stockCurrentValueFromAPI("BABA", parseDate("2022-11-20")));
+    System.out.println(pm.displayFlexPortfolioValue("PF2", parseDate("2022-11-20"), api));
     //System.out.println(pm.displayWeightedPf("FANG"));
     //System.out.println(pm.examinePortfolioByDate("PF1", parseDate("2022-12-01")));
-    System.out.println(pm.reBalancePortfolio("FANG", parseDate("2022-12-01"), api));
+    //System.out.println(pm.reBalancePortfolio("FANG", parseDate("2022-12-01"), api));
     //System.out.println(pm.validateStrategyPfExists("PF1"));
     //System.out.println(pm.displayWeightedPf("FANG"));
   }

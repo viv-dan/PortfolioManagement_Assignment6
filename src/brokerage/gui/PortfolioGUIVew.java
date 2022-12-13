@@ -3,13 +3,8 @@ package brokerage.gui;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.UIManager;
+
+import javax.swing.*;
 
 /**
  * This class implements the GUI view of this program.
@@ -551,7 +546,7 @@ public class PortfolioGUIVew extends JFrame implements PortfolioBrokerageGUIView
     panel.setLayout(new GridLayout(6, 0));
 
     // get portfolioname
-    JLabel lbName = new JLabel("Enter the portfolio name: ");
+    JLabel lbName = new JLabel("Portfolio name ");
     panel.add(lbName);
     pn1 = new JTextField(6);
     panel.add(pn1);
@@ -600,6 +595,14 @@ public class PortfolioGUIVew extends JFrame implements PortfolioBrokerageGUIView
             getTicker.getText(),getWeight.getText(),date.getText()));
     rebalancePortfolio.addActionListener(e -> feature.startRebalancing(pn1.getText(), date.getText(),
             getTicker.getText(),getWeight.getText()));
+  }
+
+  @Override
+  public void clearTextInReBalance() {
+    getTicker.setText("");
+    getWeight.setText("");
+    pn1.setEditable(false);
+    setBackgroundColorToGray(pn1);
   }
 
   @Override

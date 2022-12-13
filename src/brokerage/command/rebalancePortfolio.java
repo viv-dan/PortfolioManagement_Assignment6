@@ -54,20 +54,29 @@ public class rebalancePortfolio implements CommandController {
     }
     while (!isValid);
     API api = new APIImpl();
-    do {
-      view.inputNoOfStocksToAdd();
-      while (!scan.hasNextInt()) {
-        String input = scan.next();
-        view.output(input + " is not a valid number.");
-      }
-      stockCount = scan.nextInt();
-    }
-    while (stockCount <= 0);
 
     // get ticker
-    view.output(model.displayListOfStocks());
+    String compostion = model.examinePortfolioByDate(portfolioName, date);
+    String[] compositionSplit = compostion.split("\n");
+    HashMap<String, Double> hm = new HashMap<>();
+    for(int j=4; j<compositionSplit.length;j++){
+      String[] tickerRow = compositionSplit[j].split("\t");
+      hm.put(tickerRow[0], hm.getOrDefault(tickerRow[0],0.0));
+    }
+    for (String s:hm.keySet()) {
+      if(s.startsWith("No")){
+        view.output(s);
+        view.output("Can't rebalance portfolio");
+        return;
+      }
+    }
+    stockCount=hm.size();
     for (int i = 0; i < stockCount; i++) {
-      view.inputTicker();
+      //view.inputTicker();
+      view.output("Choose ticker from list");
+      for (String s:hm.keySet()) {
+        view.output(s);
+      }
       ticker = scan.next();
       while (model.validateTickerExist(ticker) == 1) {
         view.output("Ticker doesn't exist. Provide a different name.");
@@ -94,13 +103,15 @@ public class rebalancePortfolio implements CommandController {
         stockWeightMap.put(ticker, weight);
       }
     }
-    for (String s:stockWeightMap.keySet()) {
-      System.out.println("Tick"+s+" "+stockWeightMap.get(s));
+    if(hm.keySet().equals(stockWeightMap.keySet())){
+      try{
+        view.output(model.reBalancePortfolio(portfolioName, date, stockWeightMap,api));
+      }catch (Exception e){
+        view.output(e.getMessage());
+      }
     }
-    try{
-      view.output(model.reBalancePortfolio(portfolioName, date, stockWeightMap,api));
-    }catch (Exception e){
-      e.printStackTrace();
+    else{
+      view.output("Enter stocks that are present in the portfolio");
     }
 
   }
