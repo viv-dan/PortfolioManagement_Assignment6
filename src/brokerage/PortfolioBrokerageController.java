@@ -97,8 +97,9 @@ public class PortfolioBrokerageController implements PortfolioController {
 
         // Exit from the menu.
         case 6:
-          System.exit(0);
-          break;
+          //System.exit(0);
+          //break;
+          return;
 
         //*************************** Menu Options for Flexible Portfolio ********************
 

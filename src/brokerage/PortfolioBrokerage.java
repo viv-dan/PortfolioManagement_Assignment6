@@ -28,6 +28,7 @@ public class PortfolioBrokerage {
         new PortfolioBrokerageController(new InputStreamReader(System.in),
             new PrintStream(System.out)).goController(new PortfolioStrategyModelImpl(),
             new PortfolioBrokerageView(System.out));
+        System.exit(0);
       } else if (a == 2) {
         PortfolioStrategyModel model = new PortfolioStrategyModelImpl();
         PortfolioBrokerageGUIView view = new PortfolioGUIVew("PortfolioBrokerage");
@@ -37,5 +38,6 @@ public class PortfolioBrokerage {
     } catch (IOException e) {
       e.printStackTrace();
     }
+
   }
 }
