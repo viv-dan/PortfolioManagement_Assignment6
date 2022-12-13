@@ -90,6 +90,10 @@ public class rebalancePortfolio implements CommandController {
       }
       if (stockCount > 1) {
         do {
+          if(weightDiff>=100 || weightDiff<0){
+            view.output("Input weight composition is incorrect");
+            return;
+          }
           view.inputWeight();
           view.output("Remaining weight: " + (100 - weightDiff));
           while (!scan.hasNextFloat()) {
