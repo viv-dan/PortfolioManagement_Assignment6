@@ -319,7 +319,6 @@ public class PortfolioStrategyModelImpl extends PortfolioFlexBrokerageModel impl
           return "Cannot re-balance portfolio";
         }
       }else{
-        System.out.println(stock+" "+stockRebalanceQuantity+" "+actualStockQuantity);
         int j = this.createListOfStockForFlex(stock, stockRebalanceQuantity-actualStockQuantity, date, 0, api);
         if(j!=1){
           return "Cannot re-balance portfolio";
