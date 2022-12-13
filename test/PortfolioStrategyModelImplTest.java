@@ -1,4 +1,5 @@
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import java.time.Period;
 import java.util.HashMap;
@@ -265,11 +266,177 @@ public class PortfolioStrategyModelImplTest {
     }
   }
 
+
+
   @Test
   public void testRebalancing(){
     PortfolioStrategyModel pm = new PortfolioStrategyModelImpl();
     API api = new APIImpl();
-
+    pm.createListOfStockForFlex("AAPL", 20, parseDate("2022-11-01"), 10, api);
+    pm.createListOfStockForFlex("GOOGL",20,parseDate("2022-11-01"),10,api);
+    pm.createPortfolio("test re-balance");
+    String stringValue = pm.displayFlexPortfolioValue("test re-balance", parseDate("2022-12-09"), api);
+    int indexOfDollar = stringValue.lastIndexOf("$");
+    Double valueOfPortfolio = Double.parseDouble(stringValue.substring(indexOfDollar+1));
+    HashMap<String, Double> hm = new HashMap<>();
+    hm.put("GOOGL",50.0);
+    hm.put("AAPL",50.0);
+    PortfolioStrategyModel pm1 = new PortfolioStrategyModelImpl();
+    pm1.reBalancePortfolio("test re-balance",parseDate("2022-12-09"),hm,api);
+    String stringValueAfter = pm.displayFlexPortfolioValue("test re-balance", parseDate("2022-12-09"), api);
+    int indexOfDollarAfter = stringValueAfter.lastIndexOf("$");
+    Double valueOfPortfolioAfter = Double.parseDouble(stringValueAfter.substring(indexOfDollarAfter+1));
+    assertEquals(valueOfPortfolio, valueOfPortfolioAfter, 0.5);
   }
+
+  @Test
+  public void testRebalancingStockQuantity(){
+    PortfolioStrategyModel pm = new PortfolioStrategyModelImpl();
+    API api = new APIImpl();
+    pm.createListOfStockForFlex("AAPL", 20, parseDate("2022-11-01"), 10, api);
+    pm.createListOfStockForFlex("GOOGL",20,parseDate("2022-11-01"),10,api);
+    pm.createPortfolio("test re-balance1");
+    String stringValue = pm.displayFlexPortfolioValue("test re-balance1", parseDate("2022-12-09"), api);
+    int indexOfDollar = stringValue.lastIndexOf("$");
+    Double valueOfPortfolio = Double.parseDouble(stringValue.substring(indexOfDollar+1));
+    HashMap<String, Double> hm = new HashMap<>();
+    hm.put("GOOGL",50.0);
+    hm.put("AAPL",50.0);
+    PortfolioStrategyModel pm1 = new PortfolioStrategyModelImpl();
+    pm1.reBalancePortfolio("test re-balance1",parseDate("2022-12-09"),hm,api);
+    String stringValueAfter = pm.displayFlexPortfolioValue("test re-balance1", parseDate("2022-12-09"), api);
+    int indexOfDollarAfter = stringValueAfter.lastIndexOf("$");
+    Double valueOfPortfolioAfter = Double.parseDouble(stringValueAfter.substring(indexOfDollarAfter+1));
+    assertEquals(valueOfPortfolio, valueOfPortfolioAfter, 0.5);
+    String compostion = pm.examinePortfolioByDate("test re-balance1", parseDate("2022-12-09"));
+    String[] compositionSplit = compostion.split("\n");
+    HashMap<String, Double> hm1 = new HashMap<>();
+    for(int i=4; i<compositionSplit.length;i++){
+      String[] tickerRow = compositionSplit[i].split("\t");
+      hm1.put(tickerRow[0], hm1.getOrDefault(tickerRow[0],0.0)+Double.parseDouble(tickerRow[1]));
+    }
+    assertEquals(hm1.get("GOOGL"), 25.31,0.1);
+    assertEquals(hm1.get("AAPL"), 16.5,0.1);
+    assertEquals(hm1.get("GOOGL")* api.stockCurrentValueFromAPI("GOOGL",parseDate("2022-12-09")),valueOfPortfolioAfter/2,1);
+    assertEquals(hm1.get("AAPL")* api.stockCurrentValueFromAPI("AAPL",parseDate("2022-12-09")),valueOfPortfolioAfter/2,1);
+  }
+
+  @Test
+  public void testRebalancingStockQuantityDifferentWeights(){
+    PortfolioStrategyModel pm = new PortfolioStrategyModelImpl();
+    API api = new APIImpl();
+    pm.createListOfStockForFlex("AAPL", 20, parseDate("2022-11-01"), 10, api);
+    pm.createListOfStockForFlex("GOOGL",20,parseDate("2022-11-01"),10,api);
+    pm.createPortfolio("test re-balance2");
+    String stringValue = pm.displayFlexPortfolioValue("test re-balance2", parseDate("2022-12-09"), api);
+    int indexOfDollar = stringValue.lastIndexOf("$");
+    Double valueOfPortfolio = Double.parseDouble(stringValue.substring(indexOfDollar+1));
+    HashMap<String, Double> hm = new HashMap<>();
+    hm.put("GOOGL",25.0);
+    hm.put("AAPL",75.0);
+    PortfolioStrategyModel pm1 = new PortfolioStrategyModelImpl();
+    pm1.reBalancePortfolio("test re-balance2",parseDate("2022-12-09"),hm,api);
+    String stringValueAfter = pm.displayFlexPortfolioValue("test re-balance2", parseDate("2022-12-09"), api);
+    int indexOfDollarAfter = stringValueAfter.lastIndexOf("$");
+    Double valueOfPortfolioAfter = Double.parseDouble(stringValueAfter.substring(indexOfDollarAfter+1));
+    assertEquals(valueOfPortfolio, valueOfPortfolioAfter, 1);
+    String compostion = pm.examinePortfolioByDate("test re-balance2", parseDate("2022-12-09"));
+    String[] compositionSplit = compostion.split("\n");
+    HashMap<String, Double> hm1 = new HashMap<>();
+    for(int i=4; i<compositionSplit.length;i++){
+      String[] tickerRow = compositionSplit[i].split("\t");
+      hm1.put(tickerRow[0], hm1.getOrDefault(tickerRow[0],0.0)+Double.parseDouble(tickerRow[1]));
+    }
+    assertEquals(hm1.get("GOOGL"), 12.6,0.1);
+    assertEquals(hm1.get("AAPL"), 24.79,0.1);
+    assertEquals(hm1.get("GOOGL")* api.stockCurrentValueFromAPI("GOOGL",parseDate("2022-12-09")),valueOfPortfolioAfter*(0.25),1);
+    assertEquals(hm1.get("AAPL")* api.stockCurrentValueFromAPI("AAPL",parseDate("2022-12-09")),valueOfPortfolioAfter*(0.75),1);
+  }
+
+  @Test
+  public void testRebalancingStockQuantityDifferentWeightsManyStocks(){
+    PortfolioStrategyModel pm = new PortfolioStrategyModelImpl();
+    API api = new APIImpl();
+    pm.createListOfStockForFlex("AAPL", 20, parseDate("2022-11-01"), 10, api);
+    pm.createListOfStockForFlex("GOOGL",20,parseDate("2022-11-01"),10,api);
+    pm.createListOfStockForFlex("TSLA",20,parseDate("2022-11-01"),10,api);
+    pm.createListOfStockForFlex("MSFT",20,parseDate("2022-11-01"),10,api);
+    pm.createPortfolio("test re-balance3");
+    String stringValue = pm.displayFlexPortfolioValue("test re-balance3", parseDate("2022-12-09"), api);
+    int indexOfDollar = stringValue.lastIndexOf("$");
+    Double valueOfPortfolio = Double.parseDouble(stringValue.substring(indexOfDollar+1));
+    HashMap<String, Double> hm = new HashMap<>();
+    hm.put("GOOGL",20.0);
+    hm.put("AAPL",30.0);
+    hm.put("TSLA",15.0);
+    hm.put("MSFT",35.0);
+    PortfolioStrategyModel pm1 = new PortfolioStrategyModelImpl();
+    pm1.reBalancePortfolio("test re-balance3",parseDate("2022-12-09"),hm,api);
+    String stringValueAfter = pm.displayFlexPortfolioValue("test re-balance3", parseDate("2022-12-09"), api);
+    int indexOfDollarAfter = stringValueAfter.lastIndexOf("$");
+    Double valueOfPortfolioAfter = Double.parseDouble(stringValueAfter.substring(indexOfDollarAfter+1));
+    assertEquals(valueOfPortfolio, valueOfPortfolioAfter, 1);
+    String compostion = pm.examinePortfolioByDate("test re-balance3", parseDate("2022-12-09"));
+    String[] compositionSplit = compostion.split("\n");
+    HashMap<String, Double> hm1 = new HashMap<>();
+    for(int i=4; i<compositionSplit.length;i++){
+      String[] tickerRow = compositionSplit[i].split("\t");
+      hm1.put(tickerRow[0], hm1.getOrDefault(tickerRow[0],0.0)+Double.parseDouble(tickerRow[1]));
+    }
+    assertEquals(hm1.get("GOOGL"), 28.42,0.1);
+    assertEquals(hm1.get("AAPL"), 27.83,0.1);
+    assertEquals(hm1.get("TSLA"), 11.04,0.1);
+    assertEquals(hm1.get("MSFT"), 18.8,0.1);
+    assertEquals(hm1.get("GOOGL")* api.stockCurrentValueFromAPI("GOOGL",parseDate("2022-12-09")),valueOfPortfolioAfter*(0.2),1);
+    assertEquals(hm1.get("AAPL")* api.stockCurrentValueFromAPI("AAPL",parseDate("2022-12-09")),valueOfPortfolioAfter*(0.30),1);
+    assertEquals(hm1.get("TSLA")* api.stockCurrentValueFromAPI("TSLA",parseDate("2022-12-09")),valueOfPortfolioAfter*(0.15),1);
+    assertEquals(hm1.get("MSFT")* api.stockCurrentValueFromAPI("MSFT",parseDate("2022-12-09")),valueOfPortfolioAfter*(0.35),1);
+  }
+
+
+  @Test
+  public void testRebalancingNoPortfolio(){
+    API api = new APIImpl();
+    HashMap<String, Double> hm = new HashMap<>();
+    hm.put("GOOGL",50.0);
+    hm.put("AAPL",50.0);
+    PortfolioStrategyModel pm1 = new PortfolioStrategyModelImpl();
+    String s = pm1.reBalancePortfolio("klsjfcpwp",parseDate("2022-12-09"),hm,api);
+    assertEquals("No portfolio exist", s);
+  }
+
+  @Test
+  public void testRebalancingOnHoliday(){
+    API api = new APIImpl();
+    HashMap<String, Double> hm = new HashMap<>();
+    hm.put("GOOGL",50.0);
+    hm.put("AAPL",50.0);
+    PortfolioStrategyModel pm1 = new PortfolioStrategyModelImpl();
+    String s = pm1.reBalancePortfolio("FANG",parseDate("2022-12-10"),hm,api);
+    assertNotEquals("Re-balancing done successfully", s);
+  }
+
+  @Test
+  public void testRebalancingStocksNotPresent(){
+    API api = new APIImpl();
+    HashMap<String, Double> hm = new HashMap<>();
+    hm.put("GOOGL",50.0);
+    hm.put("VZ",50.0);
+    PortfolioStrategyModel pm1 = new PortfolioStrategyModelImpl();
+    String s = pm1.reBalancePortfolio("FANG",parseDate("2022-12-10"),hm,api);
+    assertEquals("All the stocks were not weighted", s);
+  }
+
+  @Test
+  public void testRebalancingWeightsNotEqual100(){
+    API api = new APIImpl();
+    HashMap<String, Double> hm = new HashMap<>();
+    hm.put("GOOGL",50.0);
+    PortfolioStrategyModel pm1 = new PortfolioStrategyModelImpl();
+    String s = pm1.reBalancePortfolio("FANG",parseDate("2022-12-10"),hm,api);
+    assertEquals("The Total % of weights were not equal to 100%. Please provide proper weightage.", s);
+  }
+
+
 
 }

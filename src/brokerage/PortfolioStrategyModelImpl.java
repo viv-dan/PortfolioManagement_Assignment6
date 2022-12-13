@@ -287,6 +287,9 @@ public class PortfolioStrategyModelImpl extends PortfolioFlexBrokerageModel impl
   @Override
   public String reBalancePortfolio(String portfolioName, LocalDate date, Map<String, Double> weights, API api) {
     double totalWeight = 0.0;
+    if(this.validateFlexPortfolioExist(portfolioName)==0){
+      return "No portfolio exist";
+    }
     for(String stock : weights.keySet()){
       totalWeight += weights.get(stock);
     }
@@ -306,6 +309,9 @@ public class PortfolioStrategyModelImpl extends PortfolioFlexBrokerageModel impl
       String[] tickerRow = compositionSplit[i].split("\t");
       hm.put(tickerRow[0], hm.getOrDefault(tickerRow[0],0.0)+Double.parseDouble(tickerRow[1]));
     }
+    if(!hm.keySet().equals(weights.keySet())){
+      return "All the stocks were not weighted";
+    }
     for(String stock : hm.keySet()){
       Double price = api.stockCurrentValueFromAPI(stock, date);
       if(price==0){
@@ -319,11 +325,12 @@ public class PortfolioStrategyModelImpl extends PortfolioFlexBrokerageModel impl
           return "Cannot re-balance portfolio";
         }
       }else{
-        int j = this.createListOfStockForFlex(stock, stockRebalanceQuantity-actualStockQuantity, date, 0, api);
+        PortfolioStrategyModel p = new PortfolioStrategyModelImpl();
+        int j = p.createListOfStockForFlex(stock, stockRebalanceQuantity-actualStockQuantity, date, 0, api);
         if(j!=1){
           return "Cannot re-balance portfolio";
         }
-        String s  = this.createPortfolio(portfolioName);
+        String s  = p.createPortfolio(portfolioName);
         if(!s.contains("Flexible Portfolio successfully created")){
           return "Cannot re-balance portfolio";
         }
